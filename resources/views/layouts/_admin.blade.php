@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-    
+
 	<head>
 		<meta charset="utf-8" />
 		<title>@yield("title")</title>
@@ -28,9 +28,9 @@
 
 		<!--end::Page Vendors Styles -->
         <link rel="shortcut icon" href="{{ asset('metronic/assets/demo/default/media/img/logo/favicon.ico') }}" />
-        
+
         <style>
-            html, body, .m-subheader .m-subheader__title,.btn,.m-portlet .m-portlet__head .m-portlet__head-caption .m-portlet__head-title .m-portlet__head-text{
+            html, body,.form-control, .m-subheader .m-subheader__title,.btn,.m-portlet .m-portlet__head .m-portlet__head-caption .m-portlet__head-title .m-portlet__head-text{
                 font-family: 'Tajawal', sans-serif;
             }
             .left13Important{
@@ -38,6 +38,18 @@
             }
 			.alert ul{
 				margin-bottom:0px;
+			}
+			select.form-control{
+				padding:0.45rem 1.15rem;
+			}
+			.imgSelect{
+				height:150px; overflow:hidden;
+			}
+			.imgSelect:hover{
+				border-color:#aaa;
+			}
+			.imgSelect h5,.imgSelect p{
+				text-shadow:0px 0px 2px #000;
 			}
         </style>
         @yield("css")
@@ -102,8 +114,8 @@
 
 							<!-- BEGIN: Horizontal Menu -->
 							<button class="m-aside-header-menu-mobile-close  m-aside-header-menu-mobile-close--skin-dark " id="m_aside_header_menu_mobile_close_btn"><i class="la la-close"></i></button>
-                            
-                            
+
+
 							<!-- END: Horizontal Menu -->
 
 							<!-- BEGIN: Topbar -->
@@ -131,8 +143,8 @@
 						-->
 															</div>
 															<div class="m-card-user__details">
-																<span class="m-card-user__name m--font-weight-500">محمد زيارة</span>
-																<a href="" class="m-card-user__email m--font-weight-300 m-link">mark.andre@gmail.com</a>
+																<span class="m-card-user__name m--font-weight-500">{{ Auth::user()->name }}</span>
+																<a href="" class="m-card-user__email m--font-weight-300 m-link">{{ Auth::user()->email }}</a>
 															</div>
 														</div>
 													</div>
@@ -155,7 +167,15 @@
 																<li class="m-nav__separator m-nav__separator--fit">
 																</li>
 																<li class="m-nav__item">
-																	<a href="snippets/pages/user/login-1.html" class="btn m-btn--pill    btn-secondary m-btn m-btn--custom m-btn--label-brand m-btn--bolder">تسجيل خروج</a>
+																	<a class="btn m-btn--pill    btn-secondary m-btn m-btn--custom m-btn--label-brand m-btn--bolder" href="{{ route('logout') }}"
+																	onclick="event.preventDefault();
+																					document.getElementById('logout-form').submit();">
+																		تسجيل خروج
+																	</a>
+
+																	<form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+																		@csrf
+																	</form>
 																</li>
 															</ul>
 														</div>
@@ -189,116 +209,27 @@
 								<h4 class="m-menu__section-text">لوحة التحكم</h4>
 								<i class="m-menu__section-icon flaticon-more-v2"></i>
 							</li>
-							<li class="m-menu__item  m-menu__item--submenu" aria-haspopup="true" m-menu-submenu-toggle="hover"><a href="javascript:;" class="m-menu__link m-menu__toggle"><i class="m-menu__link-icon flaticon-layers"></i><span class="m-menu__link-text">المقالات</span><i
+
+							<?php
+								$links = Auth::user()->links()->where('show_in_menu',1)->orderBy("links_id")->get();//\App\Models\Link::where('show_in_menu',1)->get();
+								$topLinks = $links->where("parent_id",0);
+							?>
+							@foreach($topLinks as $topLink)
+							<?php
+								$subLinks = $links->where("parent_id", $topLink->id);
+							?>
+							<li class="m-menu__item  m-menu__item--submenu" aria-haspopup="true" m-menu-submenu-toggle="hover"><a href="javascript:;" class="m-menu__link m-menu__toggle"><i class="m-menu__link-icon {{ $topLink->icon }}"></i><span class="m-menu__link-text">{{ $topLink->title }}</span><i
 									 class="m-menu__ver-arrow la la-angle-right"></i></a>
 								<div class="m-menu__submenu "><span class="m-menu__arrow"></span>
 									<ul class="m-menu__subnav">
 										<li class="m-menu__item  m-menu__item--parent" aria-haspopup="true"><span class="m-menu__link"><span class="m-menu__link-text">Base</span></span></li>
-										<li class="m-menu__item " aria-haspopup="true"><a href="components/base/state.html" class="m-menu__link "><i class="m-menu__link-bullet m-menu__link-bullet--dot"><span></span></i><span class="m-menu__link-text">اضافة مقال جديد</span></a></li>
-										<li class="m-menu__item " aria-haspopup="true"><a href="components/base/typography.html" class="m-menu__link "><i class="m-menu__link-bullet m-menu__link-bullet--dot"><span></span></i><span class="m-menu__link-text">ادارة المقالات</span></a></li>
-                                        <li class="m-menu__item " aria-haspopup="true"><a href="components/base/stack.html" class="m-menu__link "><i class="m-menu__link-bullet m-menu__link-bullet--dot"><span></span></i><span class="m-menu__link-text">سلة المهملات</span></a></li>
+										@foreach($subLinks as $subLink)
+										<li class="m-menu__item " aria-haspopup="true"><a href="{{ route($subLink->route_name) }}" class="m-menu__link "><i class="m-menu__link-bullet m-menu__link-bullet--dot"><span></span></i><span class="m-menu__link-text">{{ $subLink->title  }}</span></a></li>
+										@endforeach
                                     </ul>
 								</div>
 							</li>
-							<li class="m-menu__item  m-menu__item--submenu" aria-haspopup="true" m-menu-submenu-toggle="hover"><a href="javascript:;" class="m-menu__link m-menu__toggle"><i class="m-menu__link-icon fa 	fa-list-alt"></i><span class="m-menu__link-text">تصنيفات المقالات</span><i
-									 class="m-menu__ver-arrow la la-angle-right"></i></a>
-								<div class="m-menu__submenu "><span class="m-menu__arrow"></span>
-									<ul class="m-menu__subnav">
-										<li class="m-menu__item  m-menu__item--parent" aria-haspopup="true"><span class="m-menu__link"><span class="m-menu__link-text">Base</span></span></li>
-										<li class="m-menu__item " aria-haspopup="true"><a href="{{ route('category.create') }}" class="m-menu__link "><i class="m-menu__link-bullet m-menu__link-bullet--dot"><span></span></i><span class="m-menu__link-text">اضافة تصنيف جديد</span></a></li>
-										<li class="m-menu__item " aria-haspopup="true"><a href="{{ route('category.index') }}" class="m-menu__link "><i class="m-menu__link-bullet m-menu__link-bullet--dot"><span></span></i><span class="m-menu__link-text">ادارة تصنيفات المقالات</span></a></li>
-                                        <li class="m-menu__item " aria-haspopup="true"><a href="{{ route('category.trash') }}" class="m-menu__link "><i class="m-menu__link-bullet m-menu__link-bullet--dot"><span></span></i><span class="m-menu__link-text">سلة المهملات</span></a></li>
-                                    </ul>
-								</div>
-							</li>
-							<li class="m-menu__item  m-menu__item--submenu" aria-haspopup="true" m-menu-submenu-toggle="hover"><a href="javascript:;" class="m-menu__link m-menu__toggle"><i class="m-menu__link-icon fa fa-align-justify"></i><span class="m-menu__link-text">أنواع المقالات</span><i
-									 class="m-menu__ver-arrow la la-angle-right"></i></a>
-								<div class="m-menu__submenu "><span class="m-menu__arrow"></span>
-									<ul class="m-menu__subnav">
-										<li class="m-menu__item  m-menu__item--parent" aria-haspopup="true"><span class="m-menu__link"><span class="m-menu__link-text">Base</span></span></li>
-										<li class="m-menu__item " aria-haspopup="true"><a href="components/base/state.html" class="m-menu__link "><i class="m-menu__link-bullet m-menu__link-bullet--dot"><span></span></i><span class="m-menu__link-text">اضافة نوع جديد</span></a></li>
-										<li class="m-menu__item " aria-haspopup="true"><a href="components/base/typography.html" class="m-menu__link "><i class="m-menu__link-bullet m-menu__link-bullet--dot"><span></span></i><span class="m-menu__link-text">ادارة أنواع المقالات</span></a></li>
-                                        <li class="m-menu__item " aria-haspopup="true"><a href="components/base/stack.html" class="m-menu__link "><i class="m-menu__link-bullet m-menu__link-bullet--dot"><span></span></i><span class="m-menu__link-text">سلة المهملات</span></a></li>
-                                    </ul>
-								</div>
-							</li>
-							<li class="m-menu__item  m-menu__item--submenu" aria-haspopup="true" m-menu-submenu-toggle="hover"><a href="javascript:;" class="m-menu__link m-menu__toggle"><i class="m-menu__link-icon fa fa-users"></i><span class="m-menu__link-text">الكتاب</span><i
-									 class="m-menu__ver-arrow la la-angle-right"></i></a>
-								<div class="m-menu__submenu "><span class="m-menu__arrow"></span>
-									<ul class="m-menu__subnav">
-										<li class="m-menu__item  m-menu__item--parent" aria-haspopup="true"><span class="m-menu__link"><span class="m-menu__link-text">Base</span></span></li>
-										<li class="m-menu__item " aria-haspopup="true"><a href="components/base/state.html" class="m-menu__link "><i class="m-menu__link-bullet m-menu__link-bullet--dot"><span></span></i><span class="m-menu__link-text">اضافة كاتب جديد</span></a></li>
-										<li class="m-menu__item " aria-haspopup="true"><a href="components/base/typography.html" class="m-menu__link "><i class="m-menu__link-bullet m-menu__link-bullet--dot"><span></span></i><span class="m-menu__link-text">ادارة الكتاب</span></a></li>
-                                        <li class="m-menu__item " aria-haspopup="true"><a href="components/base/stack.html" class="m-menu__link "><i class="m-menu__link-bullet m-menu__link-bullet--dot"><span></span></i><span class="m-menu__link-text">سلة المهملات</span></a></li>
-                                    </ul>
-								</div>
-							</li>
-							<li class="m-menu__item  m-menu__item--submenu" aria-haspopup="true" m-menu-submenu-toggle="hover"><a href="javascript:;" class="m-menu__link m-menu__toggle"><i class="m-menu__link-icon fa fa-list"></i><span class="m-menu__link-text">الصور</span><i
-									 class="m-menu__ver-arrow la la-angle-right"></i></a>
-								<div class="m-menu__submenu "><span class="m-menu__arrow"></span>
-									<ul class="m-menu__subnav">
-										<li class="m-menu__item  m-menu__item--parent" aria-haspopup="true"><span class="m-menu__link"><span class="m-menu__link-text">Base</span></span></li>
-										<li class="m-menu__item " aria-haspopup="true"><a href="components/base/state.html" class="m-menu__link "><i class="m-menu__link-bullet m-menu__link-bullet--dot"><span></span></i><span class="m-menu__link-text">اضافة صورة جديدة</span></a></li>
-										<li class="m-menu__item " aria-haspopup="true"><a href="components/base/typography.html" class="m-menu__link "><i class="m-menu__link-bullet m-menu__link-bullet--dot"><span></span></i><span class="m-menu__link-text">ادارة الصور</span></a></li>
-                                        <li class="m-menu__item " aria-haspopup="true"><a href="components/base/stack.html" class="m-menu__link "><i class="m-menu__link-bullet m-menu__link-bullet--dot"><span></span></i><span class="m-menu__link-text">سلة المهملات</span></a></li>
-                                    </ul>
-								</div>
-							</li>
-							<li class="m-menu__item  m-menu__item--submenu" aria-haspopup="true" m-menu-submenu-toggle="hover"><a href="javascript:;" class="m-menu__link m-menu__toggle"><i class="m-menu__link-icon fa fa-file-image"></i><span class="m-menu__link-text">تصنيفات الصور</span><i
-									 class="m-menu__ver-arrow la la-angle-right"></i></a>
-								<div class="m-menu__submenu "><span class="m-menu__arrow"></span>
-									<ul class="m-menu__subnav">
-										<li class="m-menu__item  m-menu__item--parent" aria-haspopup="true"><span class="m-menu__link"><span class="m-menu__link-text">Base</span></span></li>
-										<li class="m-menu__item " aria-haspopup="true"><a href="components/base/state.html" class="m-menu__link "><i class="m-menu__link-bullet m-menu__link-bullet--dot"><span></span></i><span class="m-menu__link-text">اضافة تصنيف صورة </span></a></li>
-										<li class="m-menu__item " aria-haspopup="true"><a href="components/base/typography.html" class="m-menu__link "><i class="m-menu__link-bullet m-menu__link-bullet--dot"><span></span></i><span class="m-menu__link-text">ادارة تصنيفات الصور</span></a></li>
-                                        <li class="m-menu__item " aria-haspopup="true"><a href="components/base/stack.html" class="m-menu__link "><i class="m-menu__link-bullet m-menu__link-bullet--dot"><span></span></i><span class="m-menu__link-text">سلة المهملات</span></a></li>
-                                    </ul>
-								</div>
-							</li>
-							<li class="m-menu__item  m-menu__item--submenu" aria-haspopup="true" m-menu-submenu-toggle="hover"><a href="javascript:;" class="m-menu__link m-menu__toggle"><i class="m-menu__link-icon  fa fa-video"></i><span class="m-menu__link-text">الفيديو</span><i
-									 class="m-menu__ver-arrow la la-angle-right"></i></a>
-								<div class="m-menu__submenu "><span class="m-menu__arrow"></span>
-									<ul class="m-menu__subnav">
-										<li class="m-menu__item  m-menu__item--parent" aria-haspopup="true"><span class="m-menu__link"><span class="m-menu__link-text">Base</span></span></li>
-										<li class="m-menu__item " aria-haspopup="true"><a href="components/base/state.html" class="m-menu__link "><i class="m-menu__link-bullet m-menu__link-bullet--dot"><span></span></i><span class="m-menu__link-text">اضافة فيديو جديد</span></a></li>
-										<li class="m-menu__item " aria-haspopup="true"><a href="components/base/typography.html" class="m-menu__link "><i class="m-menu__link-bullet m-menu__link-bullet--dot"><span></span></i><span class="m-menu__link-text">ادارة الفيديو</span></a></li>
-                                        <li class="m-menu__item " aria-haspopup="true"><a href="components/base/stack.html" class="m-menu__link "><i class="m-menu__link-bullet m-menu__link-bullet--dot"><span></span></i><span class="m-menu__link-text">سلة المهملات</span></a></li>
-                                    </ul>
-								</div>
-							</li>
-							<li class="m-menu__item  m-menu__item--submenu" aria-haspopup="true" m-menu-submenu-toggle="hover"><a href="javascript:;" class="m-menu__link m-menu__toggle"><i class="m-menu__link-icon fa fa-file-video"></i><span class="m-menu__link-text">تصنيفات الفيديو</span><i
-									 class="m-menu__ver-arrow la la-angle-right"></i></a>
-								<div class="m-menu__submenu "><span class="m-menu__arrow"></span>
-									<ul class="m-menu__subnav">
-										<li class="m-menu__item  m-menu__item--parent" aria-haspopup="true"><span class="m-menu__link"><span class="m-menu__link-text">Base</span></span></li>
-										<li class="m-menu__item " aria-haspopup="true"><a href="components/base/state.html" class="m-menu__link "><i class="m-menu__link-bullet m-menu__link-bullet--dot"><span></span></i><span class="m-menu__link-text">اضافة تصنيف فيديو </span></a></li>
-										<li class="m-menu__item " aria-haspopup="true"><a href="components/base/typography.html" class="m-menu__link "><i class="m-menu__link-bullet m-menu__link-bullet--dot"><span></span></i><span class="m-menu__link-text">ادارة تصنيفات الفيديو</span></a></li>
-                                        <li class="m-menu__item " aria-haspopup="true"><a href="components/base/stack.html" class="m-menu__link "><i class="m-menu__link-bullet m-menu__link-bullet--dot"><span></span></i><span class="m-menu__link-text">سلة المهملات</span></a></li>
-                                    </ul>
-								</div>
-							</li>
-							<li class="m-menu__item  m-menu__item--submenu" aria-haspopup="true" m-menu-submenu-toggle="hover"><a href="javascript:;" class="m-menu__link m-menu__toggle"><i class="m-menu__link-icon flaticon-laptop"></i><span class="m-menu__link-text">الاعلانات</span><i
-									 class="m-menu__ver-arrow la la-angle-right"></i></a>
-								<div class="m-menu__submenu "><span class="m-menu__arrow"></span>
-									<ul class="m-menu__subnav">
-										<li class="m-menu__item  m-menu__item--parent" aria-haspopup="true"><span class="m-menu__link"><span class="m-menu__link-text">Base</span></span></li>
-										<li class="m-menu__item " aria-haspopup="true"><a href="components/base/state.html" class="m-menu__link "><i class="m-menu__link-bullet m-menu__link-bullet--dot"><span></span></i><span class="m-menu__link-text">اضافة اعلان جديد </span></a></li>
-										<li class="m-menu__item " aria-haspopup="true"><a href="components/base/typography.html" class="m-menu__link "><i class="m-menu__link-bullet m-menu__link-bullet--dot"><span></span></i><span class="m-menu__link-text">ادارة الاعلانات</span></a></li>
-                                        <li class="m-menu__item " aria-haspopup="true"><a href="components/base/stack.html" class="m-menu__link "><i class="m-menu__link-bullet m-menu__link-bullet--dot"><span></span></i><span class="m-menu__link-text">سلة المهملات</span></a></li>
-                                    </ul>
-								</div>
-							</li>
-							<li class="m-menu__item  m-menu__item--submenu" aria-haspopup="true" m-menu-submenu-toggle="hover"><a href="javascript:;" class="m-menu__link m-menu__toggle"><i class="m-menu__link-icon flaticon-user"></i><span class="m-menu__link-text">المستخدمين</span><i
-									 class="m-menu__ver-arrow la la-angle-right"></i></a>
-								<div class="m-menu__submenu "><span class="m-menu__arrow"></span>
-									<ul class="m-menu__subnav">
-										<li class="m-menu__item  m-menu__item--parent" aria-haspopup="true"><span class="m-menu__link"><span class="m-menu__link-text">Base</span></span></li>
-										<li class="m-menu__item " aria-haspopup="true"><a href="components/base/state.html" class="m-menu__link "><i class="m-menu__link-bullet m-menu__link-bullet--dot"><span></span></i><span class="m-menu__link-text">اضافة مستخدم جديد </span></a></li>
-										<li class="m-menu__item " aria-haspopup="true"><a href="components/base/typography.html" class="m-menu__link "><i class="m-menu__link-bullet m-menu__link-bullet--dot"><span></span></i><span class="m-menu__link-text">ادارة المستخدمين</span></a></li>
-                                        <li class="m-menu__item " aria-haspopup="true"><a href="components/base/stack.html" class="m-menu__link "><i class="m-menu__link-bullet m-menu__link-bullet--dot"><span></span></i><span class="m-menu__link-text">سلة المهملات</span></a></li>
-                                    </ul>
-								</div>
-							</li>
+							@endforeach
 						</ul>
 					</div>
 				</div>
@@ -317,7 +248,7 @@
 									</div>
 								</div>
 							</div>
-							<div class="m-portlet__body">							
+							<div class="m-portlet__body">
 								@include("_msg")
 								@yield("content")
 							</div>
@@ -386,6 +317,20 @@
 				</div>
 			</div>
 		</div>
+        <div class="modal fade" id="iframeModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+			<div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="exampleModalCenterTitle"></h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+					</div>
+				</div>
+			</div>
+		</div>
 		<div id="m_scroll_top" class="m-scroll-top">
 			<i class="la la-arrow-up"></i>
 		</div>
@@ -402,6 +347,12 @@
 				$(".confirm").click(function(){
 					$("#confirmModal .btn-danger").attr("href", $(this).attr("href"));
 					$("#confirmModal").modal("show");
+					return false;
+				});
+				$(".iframe").click(function(){
+					$("#iframeModal .modal-title").html($(this).attr("title"));
+					$("#iframeModal .modal-body").html("<iframe frameborder=0 src='"+$(this).attr("href")+"' width='100%' height='500px'></iframe>");
+					$("#iframeModal").modal("show");
 					return false;
 				});
 			});

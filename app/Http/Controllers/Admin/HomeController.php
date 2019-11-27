@@ -9,4 +9,7 @@ class HomeController extends BaseController
     function index(){
         return view("admin.home.index");
     }
+    function noAccess(){
+        return view("admin.home.no-access");
+    }
 }

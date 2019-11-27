@@ -19,11 +19,11 @@ class CreateWritersTable extends Migration
             $table->string('job_title');
             $table->string('email');
             $table->string('photo');
-            $table->text('details');
-            $table->string('facebook_url');
-            $table->string('twitter_url');
-            $table->string('linkedin_url');
-            $table->string('youtube_url');
+            $table->text('details')->nullable();
+            $table->string('facebook_url')->nullable();
+            $table->string('twitter_url')->nullable();
+            $table->string('linkedin_url')->nullable();
+            $table->string('youtube_url')->nullable();
             $table->boolean('deleted')->default(0);
             $table->timestamps();
         });

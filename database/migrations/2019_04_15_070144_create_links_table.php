@@ -16,10 +16,10 @@ class CreateLinksTable extends Migration
         Schema::create('links', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('title');
-            $table->string('route_name');
+            $table->string('route_name')->nullable();
             $table->integer('parent_id');
-            $table->boolean('show_in_menu');
-            $table->integer('order_id');
+            $table->boolean('show_in_menu')->default(1);
+            $table->integer('order_id')->default(1);
             $table->timestamps();
         });
     }

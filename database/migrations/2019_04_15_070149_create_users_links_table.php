@@ -17,6 +17,7 @@ class CreateUsersLinksTable extends Migration
             $table->bigIncrements('id');
             $table->integer('users_id');
             $table->integer('links_id');
+            $table->unique(["links_id","users_id"]);
             $table->timestamps();
         });
     }
